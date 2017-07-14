@@ -12,25 +12,31 @@ FILE * input_file;
 char linea[256],
      * upper(char * str);
 char DATA[] = ".DATA";
+
 char low[] = "police";
 
 
 int main(void){
+    char tmp_str[2], salto = 10;
+    tmp_str[1] = '\0';
+    tmp_str[0] = salto;
+    strcat(DATA, tmp_str);
     if((input_file = fopen("program.asm", "r")) == NULL){
         printf("\nNo se ha podido abrir el archivo.\n");
         return 1;
     }
     while (fgets(linea, 256, input_file)){
         int len = strlen(linea);
-        printf("%s*%d", linea, len);
+        /* printf("%s", upper(linea)); */
+        printf("%s*%d - %d\n", linea, len, linea[len]);
         if( upper(linea) == DATA)
-            printf("*\n");
+            printf("*******\n");
     }
     printf("\nSuccess\n");
     upper(low);
     printf("%s\n", low);
     int len = strlen(DATA);
-    printf("%s\n%d\n",DATA, len);
+    printf("%s\n%d - %d\n",DATA, len, DATA[len-1]);
     fclose(input_file);
 
 }
@@ -60,9 +66,11 @@ void trim(char *str){           // Función que elimina espacios hacia la izquie
 
 char * upper(char * str){
     int counter = 0;
-    while (str[counter]){
-        str[counter] = toupper(str[counter]);
+    char * str2;
+    strcpy(str2, str);
+    while (str2[counter]){
+        str2[counter] = toupper(str2[counter]);
         counter++;
     }
-    return str;
+    return str2;
 }
