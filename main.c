@@ -7,18 +7,23 @@
 int main(void),
     num_identificadores = 0,
     num_simbolos = 0,
+    iter = 0,
     data = 0;
 FILE * input_file;
 void rtrim(char *str),
      ltrim(char *str),
      trim(char *str),
      init_estructura (char * identificador, char * valor, int num),
-     init_simbolo (char * simbolo, int num, size_t len);
+     init_simbolo (char * simbolo, int num, size_t len),
+    declarations(void);
 char linea[256],
      * identificador,
      * simbolo,
      * valor,
-     * upper(char * str);
+     * sec_pass,
+     * upper(char * str),
+     * simbolo2,
+     resp[256];
 struct estructura_identificador{
     char identificador[256];
     char valor[256];
@@ -30,18 +35,36 @@ struct estructura_simbolos{
     int direccion;
     int set;
 }simbolos[50];
-struct values_data_struct{
-    /* char * instruction; */
-    /* char * first; */
-    /* char * second; */
-    /* char * code; */
-
+struct data_struct{
     char instruction[5];
     char first[5];
     char second[5];
     char code[5];
     int wide;
-}values_data_struct;
+}; // }values_data_struct[100];
+struct data_struct values_data_mov[] = {
+    {"MOV", "AL", "rmb", "A0", 2},
+    {"MOV", "AX", "rmw", "A1", 2},
+    {"MOV", "AL", "ib", "B0", 1},
+    {"MOV", "AH", "ib", "B4", 1},
+    {"MOV", "AX", "iw", "B8", 2},
+    {"MOV", "DL", "ib", "B2", 1},
+    {"MOV", "DH", "ib", "B6", 1},
+    {"MOV", "DX", "iw", "BA", 2},
+};
+struct data_struct values_data_cmp[] = {
+    {"CMP", "AL", "ib", "3C", 1},
+    {"CMP", "AX", "iw", "3D", 2},
+};
+struct data_struct values_data_jmp[] = {
+    {"JMP", "", "", "EB", 1},
+    {"JE", "", "", "74", 1},
+    {"JG", "", "", "7F", 1},
+};
+struct data_struct values_data_int[] = {
+    {"INT", "", "", "CD", 1},
+};
+
 
 int main(void){
     if((input_file = fopen("program.asm", "r")) == NULL){
@@ -81,19 +104,54 @@ int main(void){
                 init_simbolo(simbolo, num_simbolos, len);
                 continue;
                 }
-            /* printf("No\n"); */
-            char * simbolo2 = strtok(NULL, ","), resp[256];
+
+            simbolo2 = strtok(NULL, ",");
             if (!simbolo2){
                 strcpy(resp, "");
             }
             else strcpy(resp, simbolo2);
             trim(resp);
             printf("[%s][%s]\n", simbolo, resp);
+
+
+            char part1[20], part2[20];
+            sec_pass = strtok(simbolo, " ");
+            strcpy(part1, sec_pass);
+            upper(part1);
+            trim(part1);
+            sec_pass = strtok(NULL, " ");
+            strcpy(part2, sec_pass);
+            upper(part2);
+            trim(part2);
+            /* printf("[%s] [%s]\n", part1, part2); */
+            /* printf("[%s] [%s]\n", values_data_struct[7].instruction, values_data_struct[7].first); */
+            int flag = 1;
+            iter = 0;
+            /* if (strcmp(resp,"") == 0) */
+            /*     printf(" "); */
+            /* else{ */
+            /*     printf(" "); */
+// WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP
+                /* while(flag == 1){ */
+                /*     /1* if(strlen(part2)>2) *1/ */
+                /*     char chop0[5], chop1[5]; */
+                /*     strcpy(values_data_struct[iter].instruction, chop0); */
+                /*     strcpy(values_data_struct[iter].first, chop1); */
+
+                /*     if(strcmp(chop0, part1) == 0 && strcmp(chop1, part2) == 0){ */
+                /*         printf("Yolo\n"); */
+                /*         flag = 0; */
+                /*     } */
+                /*     if(iter > ) */
+                /*         break; */
+
+                /*     iter += 1; */
+                /* } */
+            /* } */
+
             }
+
     }
-    /* printf("%d - Simbolos\n", num_simbolos); */
-    /* printf("%s-\n", simbolos[0].simbolo); */
-    /* printf("[%s]>[%s]\n", identificadores[0].identificador, identificadores[0].valor); */
     fclose(input_file);
     return 0;
 }
@@ -150,27 +208,6 @@ char * upper(char * str){
     /* return str2; */
     return str;
 }
-
-
-
-/* values_data_struct code_values_data[] = { */
-/*     {"MOV", "AL", "rmb", "A0", 2}, */
-/*     {"MOV", "AX", "rmw", "A1", 2}, */
-/*     {"MOV", "AL", "ib", "B0", 1}, */
-/*     {"MOV", "AH", "ib", "B4", 1}, */
-/*     {"MOV", "AX", "iw", "B8", 2}, */
-/*     {"MOV", "DL", "ib", "B2", 1}, */
-/*     {"MOV", "DH", "ib", "B6", 1}, */
-/*     {"MOV", "DX", "iw", "BA", 2}, */
-
-/*     {"CMP", "AL", "ib", "3C", 1}, */
-/*     {"CMP", "AX", "iw", "3D", 2}, */
-
-/*     {"JMP", NULL, NULL, "EB", 1}, */
-
-
-/*     {NULL, NULL, NULL, NULL, 0} */
-/* }; */
 
 /* int main(void){ */
 /*     char tmp_str[2], salto = 10; */
