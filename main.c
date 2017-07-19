@@ -5,6 +5,8 @@
 
 
 int main(void),
+    is_digit(char * str),
+    is_namber(char * str),
     num_identificadores = 0,
     num_simbolos = 0,
     iter = 0,
@@ -22,6 +24,7 @@ char linea[256],
      * valor,
      * sec_pass,
      * upper(char * str),
+    * lower(char * str),
      * simbolo2,
      resp[256];
 struct estructura_identificador{
@@ -125,18 +128,58 @@ int main(void){
             trim(part2);
             /* printf("[%s] [%s]\n", part1, part2); */
             /* printf("[%s] [%s]\n", values_data_struct[7].instruction, values_data_struct[7].first); */
+            char chop0[5], chop1[5];
             int flag = 1;
             iter = 0;
-            /* if (strcmp(resp,"") == 0) */
-            /*     printf(" "); */
-            /* else{ */
-            /*     printf(" "); */
+            if (strcmp(resp,"") == 0) {
+                /* printf(" "); */
+                if (strcmp(part1,"INT") == 0){
+                char pop[5];
+                size_t lent = strlen(part2);
+                strncpy(pop, part2, lent-1);
+                /* printf("%s %0x\n", values_data_int[0].code, (int)strtol(part2, NULL,16)); */
+                printf("%s %0x\n", values_data_int[0].code, (int)strtol(pop, NULL,16));
+                }
+                if (strcmp(part1,"JMP") == 0){
+                lower(part2);
+                printf("%s %s\n", values_data_jmp[0].code, part2);
+                }
+                if (strcmp(part1,"JE") == 0){
+                lower(part2);
+                printf("%s %s\n", values_data_jmp[1].code, part2);
+                }
+                if (strcmp(part1,"JG") == 0){
+                lower(part2);
+                printf("%s %s\n", values_data_jmp[2].code, part2);
+                }
+
+            }
+            else{
+                if (strcmp(part1, "MOV") == 0){
+                    while(iter < 8){
+                        if (strcmp(values_data_mov[iter].first, part2) == 0){
+                            if ((is_digit(resp) == 1) && (strcmp(values_data_mov[iter].second, "ib") == 0)){  // Se encarga del MOV reg «entero»
+                                printf("%s %s\n", values_data_mov[iter].code, resp);
+                                break;
+                            }
+                            if (strcmp(upper(strtok(resp, " ")), "OFFSET") == 0){
+                                printf("Message\n");
+                                break;
+                            }
+                            /* flag = 0; */
+                        }
+                    iter += 1;
+                    }
+
+                    iter = 0;
+                }
+
+                if (strcmp(part1, "CMP") == 0){
+                    iter = 0;
+                }
 // WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP
                 /* while(flag == 1){ */
                 /*     /1* if(strlen(part2)>2) *1/ */
-                /*     char chop0[5], chop1[5]; */
-                /*     strcpy(values_data_struct[iter].instruction, chop0); */
-                /*     strcpy(values_data_struct[iter].first, chop1); */
 
                 /*     if(strcmp(chop0, part1) == 0 && strcmp(chop1, part2) == 0){ */
                 /*         printf("Yolo\n"); */
@@ -147,7 +190,7 @@ int main(void){
 
                 /*     iter += 1; */
                 /* } */
-            /* } */
+            }
 
             }
 
@@ -207,6 +250,34 @@ char * upper(char * str){
     }
     /* return str2; */
     return str;
+}
+char * lower(char * str){
+    int counter = 0;
+    while (str[counter]){
+        str[counter] = tolower(str[counter]);
+        counter++;
+    }
+    return str;
+}
+int is_digit(char * str){
+    size_t len = strlen(str);
+    int i;
+    for(i = 0; i<len; i+=1){
+        if(isdigit(str[i]) == 0)
+            return 0;
+    }
+    return 1;
+}
+int is_namber(char * str){
+    size_t len = strlen(str);
+    if (toupper(str[len-1]) == 'H'){
+    char newstr[5];
+    strncpy(str, newstr, len-1);
+    if (is_digit(newstr) == 1)
+        return 1;
+    else return 0;
+    }
+    else return is_digit(str);
 }
 
 /* int main(void){ */
