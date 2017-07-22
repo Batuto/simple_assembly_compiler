@@ -42,7 +42,7 @@ struct data_struct{
     char instruction[5];
     char first[5];
     char second[5];
-    char code[5];
+    char code[6];
     int wide;
 }; // }values_data_struct[100];
 struct data_struct values_data_mov[] = {
@@ -52,6 +52,7 @@ struct data_struct values_data_mov[] = {
     {"MOV", "AH", "ib", "B4", 1},
     {"MOV", "AX", "iw", "B8", 2},
     {"MOV", "DL", "ib", "B2", 1},
+    {"MOV", "DL", "AL", "88 C2", 1},
     {"MOV", "DH", "ib", "B6", 1},
     {"MOV", "DX", "iw", "BA", 2},
 };
@@ -156,14 +157,20 @@ int main(void){
             }
             else{
                 if (strcmp(part1, "MOV") == 0){
-                    while(iter < 8){
+                    while(iter < 100){
                         if (strcmp(values_data_mov[iter].first, part2) == 0){
                             if ((is_digit(resp) == 1) && (strcmp(values_data_mov[iter].second, "ib") == 0)){  // Se encarga del MOV reg «entero»
-                                printf("%s %s\n", values_data_mov[iter].code, resp);
+                                printf("%s %02x\n", values_data_mov[iter].code, (int)strtol(resp,NULL,10));
                                 break;
                             }
+                            else
                             if (strcmp(upper(strtok(resp, " ")), "OFFSET") == 0){
                                 printf("Message\n");
+                                break;
+                            }
+                            else
+                            if (strcmp(upper(resp), values_data_mov[iter].second) == 0){
+                                printf("%s\n", values_data_mov[iter].code);
                                 break;
                             }
                             /* flag = 0; */
@@ -270,6 +277,8 @@ int is_digit(char * str){
 }
 int is_namber(char * str){
     size_t len = strlen(str);
+    if (len > 5)
+        return 0;
     if (toupper(str[len-1]) == 'H'){
     char newstr[5];
     strncpy(str, newstr, len-1);
