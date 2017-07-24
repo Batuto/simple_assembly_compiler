@@ -46,8 +46,8 @@ struct data_struct{
     int wide;
 }; // }values_data_struct[100];
 struct data_struct values_data_mov[] = {
-    {"MOV", "AL", "rmb", "A0", 2},
-    {"MOV", "AX", "rmw", "A1", 2},
+    /* {"MOV", "AL", "rmb", "A0", 2}, */
+    /* {"MOV", "AX", "rmw", "A1", 2}, */
     {"MOV", "AL", "ib", "B0", 1},
     {"MOV", "AH", "ib", "B4", 1},
     {"MOV", "AX", "iw", "B8", 2},
@@ -173,6 +173,11 @@ int main(void){
                                 printf("%s\n", values_data_mov[iter].code);
                                 break;
                             }
+                            else
+                                if ((is_namber(resp)== 1) && (strcmp(values_data_mov[iter].first, part2) == 0)/* && (strcmp(values_data_mov[iter].second, "iw") == 0)*/){
+                                printf("%s %0x\n", values_data_mov[iter].code, (int)strtol(resp,NULL,16));
+                                break;
+                                }
                             /* flag = 0; */
                         }
                     iter += 1;
@@ -182,7 +187,10 @@ int main(void){
                 }
 
                 if (strcmp(part1, "CMP") == 0){
-                    iter = 0;
+                    /* iter = 0; */
+                    if ((strcmp(part2, values_data_cmp[iter].first) == 0)){
+                        printf("%s %0x", values_data_cmp[iter].code, (int)strtol(resp,NULL,10));
+                    }
                 }
 // WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP
                 /* while(flag == 1){ */
@@ -279,14 +287,15 @@ int is_namber(char * str){
     size_t len = strlen(str);
     if (len > 5)
         return 0;
+    else
     if (toupper(str[len-1]) == 'H'){
-    char newstr[5];
-    strncpy(str, newstr, len-1);
-    if (is_digit(newstr) == 1)
-        return 1;
+    /* char newstr[5]; */
+    /* strncpy(str, newstr, len-1); */
+    /* if (is_digit(newstr) == 1) */
+        return 1;}
     else return 0;
-    }
-    else return is_digit(str);
+    /* } */
+    /*else*/ return is_digit(str);
 }
 
 /* int main(void){ */
