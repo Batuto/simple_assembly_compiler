@@ -164,8 +164,11 @@ int main(void){
                                 break;
                             }
                             else
-                            if (strcmp(upper(strtok(resp, " ")), "OFFSET") == 0){
-                                printf("Message\n");
+                            if (strcmp(upper(strtok(resp, " ")), "OFFSET") == 0 && strcmp(values_data_mov[iter].second,"iw") == 0){
+                                /* printf("Message\n"); */
+                                char * separate = strtok(NULL, " ");
+                                /* separate = strtok(resp, " "); */
+                                printf("%s %s\n", values_data_mov[iter].code, separate);
                                 break;
                             }
                             else
@@ -189,7 +192,7 @@ int main(void){
                 if (strcmp(part1, "CMP") == 0){
                     /* iter = 0; */
                     if ((strcmp(part2, values_data_cmp[iter].first) == 0)){
-                        printf("%s %0x", values_data_cmp[iter].code, (int)strtol(resp,NULL,10));
+                        printf("%s %0x\n", values_data_cmp[iter].code, (int)strtol(resp,NULL,10));
                     }
                 }
 // WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP
