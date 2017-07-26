@@ -178,7 +178,11 @@ int main(void){
                             }
                             else
                                 if ((is_namber(resp)== 1) && (strcmp(values_data_mov[iter].first, part2) == 0)/* && (strcmp(values_data_mov[iter].second, "iw") == 0)*/){
-                                printf("%s %0x\n", values_data_mov[iter].code, (int)strtol(resp,NULL,16));
+                                char dump[4];
+                                strncpy(dump, resp, 2);
+                                printf("%s %0x", values_data_mov[iter].code, (int)strtol(dump,NULL,16));
+                                strncpy(dump, &resp[2], 2);
+                                printf(" %02x\n", (int)strtol(dump, NULL, 16));
                                 break;
                                 }
                             /* flag = 0; */
@@ -299,6 +303,7 @@ int is_namber(char * str){
     else return 0;
     /* } */
     /*else*/ return is_digit(str);
+    // Consider use strspn
 }
 
 /* int main(void){ */
