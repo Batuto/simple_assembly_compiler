@@ -4,12 +4,15 @@
 #include <ctype.h>
 
 
+unsigned int * aglomerador[256];
 int main(void),
     is_digit(char * str),
     is_namber(char * str),
     num_identificadores = 0,
     num_simbolos = 0,
     iter = 0,
+    major_iter = 0,
+    minor_iter = 0,
     data = 0;
 FILE * input_file;
 void rtrim(char *str),
@@ -17,6 +20,8 @@ void rtrim(char *str),
      trim(char *str),
      init_estructura (char * identificador, char * valor, int num),
      init_simbolo (char * simbolo, int num, size_t len),
+     pusher(char * str, char cnt[3]),
+     simbol_push_save(char * str),
     declarations(void);
 char linea[256],
      * identificador,
@@ -37,7 +42,11 @@ struct estructura_simbolos{
     char simbolo[256];
     int direccion;
     int set;
-}simbolos[50];
+}simbolos[10];
+struct saving_simbol{
+    char simbol[50];
+    int dir;
+}save_simbol[10];
 struct data_struct{
     char instruction[5];
     char first[5];
@@ -127,8 +136,6 @@ int main(void){
             strcpy(part2, sec_pass);
             upper(part2);
             trim(part2);
-            /* printf("[%s] [%s]\n", part1, part2); */
-            /* printf("[%s] [%s]\n", values_data_struct[7].instruction, values_data_struct[7].first); */
             char chop0[5], chop1[5];
             int flag = 1;
             iter = 0;
@@ -140,18 +147,26 @@ int main(void){
                 strncpy(pop, part2, lent-1);
                 /* printf("%s %0x\n", values_data_int[0].code, (int)strtol(part2, NULL,16)); */
                 printf("%s %0x\n", values_data_int[0].code, (int)strtol(pop, NULL,16));
+                pusher(values_data_int[0].code, "16");
+                pusher(pop, "16");
                 }
                 if (strcmp(part1,"JMP") == 0){
                 lower(part2);
                 printf("%s %s\n", values_data_jmp[0].code, part2);
+                pusher(values_data_jmp[0].code, "16");
+                simbol_push_save(part2);
                 }
                 if (strcmp(part1,"JE") == 0){
                 lower(part2);
                 printf("%s %s\n", values_data_jmp[1].code, part2);
+                pusher(values_data_jmp[1].code, "16");
+                simbol_push_save(part2);
                 }
                 if (strcmp(part1,"JG") == 0){
                 lower(part2);
                 printf("%s %s\n", values_data_jmp[2].code, part2);
+                pusher(values_data_jmp[2].code, "16");
+                simbol_push_save(part2);
                 }
 
             }
@@ -161,6 +176,8 @@ int main(void){
                         if (strcmp(values_data_mov[iter].first, part2) == 0){
                             if ((is_digit(resp) == 1) && (strcmp(values_data_mov[iter].second, "ib") == 0)){  // Se encarga del MOV reg «entero»
                                 printf("%s %02x\n", values_data_mov[iter].code, (int)strtol(resp,NULL,10));
+                                pusher(values_data_mov[iter].code, "16");
+                                pusher(resp, "10");
                                 break;
                             }
                             else
@@ -169,20 +186,30 @@ int main(void){
                                 char * separate = strtok(NULL, " ");
                                 /* separate = strtok(resp, " "); */
                                 printf("%s %s\n", values_data_mov[iter].code, separate);
+                                pusher(values_data_mov[iter].code, "16");
+                                // HERE  SIMBOL PUSH SAVE OR SIMILAR ------
+                                major_iter += 2;
                                 break;
                             }
                             else
                             if (strcmp(upper(resp), values_data_mov[iter].second) == 0){
                                 printf("%s\n", values_data_mov[iter].code);
+                                char reppep[6];
+                                strcpy(reppep, values_data_mov[iter].code);
+                                pusher(strtok(reppep, " "), "16");
+                                pusher(strtok(NULL, " "), "16");
                                 break;
                             }
                             else
                                 if ((is_namber(resp)== 1) && (strcmp(values_data_mov[iter].first, part2) == 0)/* && (strcmp(values_data_mov[iter].second, "iw") == 0)*/){
                                 char dump[4];
-                                strncpy(dump, resp, 2);
-                                printf("%s %0x", values_data_mov[iter].code, (int)strtol(dump,NULL,16));
                                 strncpy(dump, &resp[2], 2);
+                                printf("%s %02x", values_data_mov[iter].code, (int)strtol(dump,NULL,16));
+                                pusher(values_data_mov[iter].code, "16");
+                                pusher(dump, "16");
+                                strncpy(dump, resp, 2);
                                 printf(" %02x\n", (int)strtol(dump, NULL, 16));
+                                pusher(dump, "16");
                                 break;
                                 }
                             /* flag = 0; */
@@ -197,27 +224,29 @@ int main(void){
                     /* iter = 0; */
                     if ((strcmp(part2, values_data_cmp[iter].first) == 0)){
                         printf("%s %0x\n", values_data_cmp[iter].code, (int)strtol(resp,NULL,10));
+                        // HERE use sprintf
+                        pusher(values_data_cmp[iter].code, "16");
+                        pusher(resp, "10");
                     }
                 }
-// WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP
-                /* while(flag == 1){ */
-                /*     /1* if(strlen(part2)>2) *1/ */
-
-                /*     if(strcmp(chop0, part1) == 0 && strcmp(chop1, part2) == 0){ */
-                /*         printf("Yolo\n"); */
-                /*         flag = 0; */
-                /*     } */
-                /*     if(iter > ) */
-                /*         break; */
-
-                /*     iter += 1; */
-                /* } */
             }
 
             }
 
     }
     fclose(input_file);
+    for (int y = 0; y < num_simbolos; y++){
+        for(int z = 0; z < minor_iter; z++)
+            if(strcmp(simbolos[y].simbolo, save_simbol[z].simbol) == 0){
+                aglomerador[save_simbol[z].dir] = simbolos[y].direccion;
+            }
+    }
+
+    for (int y = 0;y < major_iter; y++)
+        printf("0x%02x ", (aglomerador[y]));
+        printf("\n");
+        printf("%d\n", major_iter);
+        printf("%d\n", num_identificadores);
     return 0;
 }
 
@@ -235,7 +264,9 @@ void init_simbolo (char * simbolo, int num, size_t len){
     simbolos[num].set = 1;
     if (num == 0)
         simbolos[0].direccion = 100;
-    printf("%s\n", simbolos[num].simbolo);
+    else
+        simbolos[num].direccion = 100 + major_iter;
+    printf("%s:\n", simbolos[num].simbolo);
     num_simbolos += 1;
 }
 
@@ -304,6 +335,20 @@ int is_namber(char * str){
     /* } */
     /*else*/ return is_digit(str);
     // Consider use strspn
+}
+void pusher(char * str, char cnt[3]){
+    if (strcmp(cnt, "16") == 0 )
+    aglomerador[major_iter] = (int *)strtol(str,NULL,16);
+    else if (strcmp(cnt, "10") == 0 )
+    aglomerador[major_iter] = (int *)strtol(str,NULL,10);
+    /* strcpy(aglomerador[major_iter], str); */
+    major_iter += 1;
+}
+void simbol_push_save(char * str){
+    strcpy(save_simbol[minor_iter].simbol, str);
+    save_simbol[minor_iter].dir = major_iter;
+    minor_iter += 1;
+    major_iter += 1;
 }
 
 /* int main(void){ */
