@@ -228,12 +228,12 @@ int main(void){
         for(int z = 0; z < minor_iter; z++)
             if(strcmp(simbolos[y].simbolo, save_simbol[z].simbol) == 0)
                 aglomerador[save_simbol[z].dir] = simbolos[y].direccion;
+    put_string();
     for (int y = 0;y < major_iter; y++)
         printf("0x%02x ", (aglomerador[y]));
     printf("\n");
     printf("%d\n", major_iter);
     printf("%d\n", num_identificadores);
-    put_string();
     return 0;
 }
 
@@ -346,23 +346,59 @@ void simbol_push_save(char * str){
 void put_string(void){
     for(int y = 0; y < num_identificadores; y++){
         char * lim,
-             sep[256];
+             sep[256],
+             mensaje_sep[256],
+             valores_izq[256],
+             valores_der[256];
         strcpy(sep,identificadores[y].valor);
         lim = strchr(sep, '"');
         int first_quo = (int)(lim-sep);
         lim = strchr(lim+1, '"');
-        int second_quo = (int)(lim-sep);
-        /* int first_quo = strcspn(sep, delim); */
-        /* int second_quo = strcspn(&sep + first_quo +1, delim); */
-        /* strncpy(sep,sep+first_quo,second_quo); */
-        printf("\n%s\n", sep);
-        printf("%d\n%d\n", first_quo,second_quo);
-        /* strncpy(sep,sep+first_quo+1,) */
-        /* char cad[256]; */
-        /* if (identificador[y].valor == 34){ */
+        /* printf("\n%s\n", sep); */
+        strcpy(mensaje_sep,(sep)+first_quo+1);
+        lim = strchr(mensaje_sep, '"');
+        int second_quo = (int)(lim-mensaje_sep);
+        mensaje_sep[second_quo] = NULL;
+        lim = strchr(sep, '"');
+        lim = strchr(lim+1,'"');
+        int last_quo = (int)(lim-sep);
+        if(first_quo != 0){
+        strncpy(valores_izq,sep,first_quo);
+        }
+        else strcpy(valores_izq,"\0");
+        strcpy(valores_der,sep+last_quo+1);
+        size_t t = strlen(valores_izq);
+        /* valores_izq[t-1] = 0; */
+        /* valores_izq[t] = 0; */
+        /* printf("%d", t); */
+        /* printf("[%s][%s][%s]", valores_izq, mensaje_sep, valores_der); */
+        /* t = strlen(valores_der); */
+        /* printf("%d\n", t); */
+        // Push numbers
+        char * cad;
+        cad = strtok(valores_izq,",");
+        if(cad != NULL){
+            while (cad != NULL){
+                /* printf("%s\n", cad); */
+                pusher(cad, "10");
+                cad = strtok(NULL,",");
 
-        /* } */
-        /* strcpy(identificador[y].valor */
+            }
+        }
+        t = strlen(mensaje_sep);
+        for(int y = 0;y < t; y ++){
+            aglomerador[major_iter] = mensaje_sep[y];
+            major_iter +=1;
+        }
+        cad = strtok(valores_der,",");
+        if(cad != NULL){
+            while (cad != NULL){
+                /* printf("%s\n", cad); */
+                pusher(cad, "10");
+                cad = strtok(NULL,",");
+            }
+        }
+
     }
 
 }
