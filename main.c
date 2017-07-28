@@ -13,6 +13,7 @@ int main(void),
     iter = 0,
     major_iter = 0,
     minor_iter = 0,
+    minor_iter2 = 0,
     data = 0;
 FILE * input_file;
 void rtrim(char *str),
@@ -48,6 +49,10 @@ struct saving_simbol{
     char simbol[50];
     int dir;
 }save_simbol[10];
+struct saving_msg{
+    char msg[50];
+    int dir;
+}save_msg[10];
 struct data_struct{
     char instruction[5];
     char first[5];
@@ -184,6 +189,12 @@ int main(void){
                                 printf("%s %s\n", values_data_mov[iter].code, separate);
                                 pusher(values_data_mov[iter].code, "16");
                                 // HERE  SIMBOL PUSH SAVE OR SIMILAR ------
+                                for(int y = 0; y < num_identificadores; y++)
+                                    if (strcmp(identificadores[y].identificador, separate) == 0)
+                                        identificadores[y].direccion = major_iter;
+                                /* strcpy(save_msg[minor_iter2].msg, separate); */
+                                /* save_msg[minor_iter2].dir = major_iter; */
+                                /* minor_iter2 += 1; */
                                 major_iter += 2;
                                 break;
                             }
@@ -223,14 +234,18 @@ int main(void){
         }
     }
     fclose(input_file);
+    FILE *fp;
+    fp = fopen("compi.com", "w");
     // HERE use sprintf
     for (int y = 0; y < num_simbolos; y++)
         for(int z = 0; z < minor_iter; z++)
             if(strcmp(simbolos[y].simbolo, save_simbol[z].simbol) == 0)
                 aglomerador[save_simbol[z].dir] = simbolos[y].direccion;
     put_string();
-    for (int y = 0;y < major_iter; y++)
+    for (int y = 0;y < major_iter; y++){
         printf("0x%02x ", (aglomerador[y]));
+        putc(aglomerador[y], fp);
+    }
     printf("\n");
     printf("%d\n", major_iter);
     printf("%d\n", num_identificadores);
@@ -250,9 +265,9 @@ void init_simbolo (char * simbolo, int num, size_t len){
     /* strncpy(simbolos[num].simbolo,simbolos[num].simbolo,(len-2)); */
     simbolos[num].set = 1;
     if (num == 0)
-        simbolos[0].direccion = 100;
+        simbolos[0].direccion = 0x100;
     else
-        simbolos[num].direccion = 100 + major_iter;
+        simbolos[num].direccion = 0x100 + major_iter;
     printf("%s:\n", simbolos[num].simbolo);
     num_simbolos += 1;
 }
@@ -351,6 +366,16 @@ void put_string(void){
              valores_izq[256],
              valores_der[256];
         strcpy(sep,identificadores[y].valor);
+        /* printf("%02d - %02x\n", identificadores[y].direccion, major_iter+200); */
+        char  buff[5];
+        sprintf(buff, "%04x", major_iter + 0x100);  // ?? Offset?
+        char dump[4];
+        strncpy(dump, &buff[2], 2);
+        aglomerador[identificadores[y].direccion] = (int)strtol(dump,NULL,16);
+        strncpy(dump, buff, 2);
+        aglomerador[identificadores[y].direccion + 1] = (int)strtol(dump,NULL,16);
+
+        printf("%s\n", buff);
         lim = strchr(sep, '"');
         int first_quo = (int)(lim-sep);
         lim = strchr(lim+1, '"');
@@ -382,12 +407,12 @@ void put_string(void){
                 /* printf("%s\n", cad); */
                 pusher(cad, "10");
                 cad = strtok(NULL,",");
-
             }
         }
         t = strlen(mensaje_sep);
         for(int y = 0;y < t; y ++){
-            aglomerador[major_iter] = mensaje_sep[y];
+            aglomerador[major_iter] = (int)mensaje_sep[y];
+            /* printf("%d ", (int)mensaje_sep[y]); */
             major_iter +=1;
         }
         cad = strtok(valores_der,",");
