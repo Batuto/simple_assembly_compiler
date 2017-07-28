@@ -16,12 +16,13 @@ int main(void),
     data = 0;
 FILE * input_file;
 void rtrim(char *str),
-     ltrim(char *str),
-     trim(char *str),
-     init_estructura (char * identificador, char * valor, int num),
-     init_simbolo (char * simbolo, int num, size_t len),
-     pusher(char * str, char cnt[3]),
-     simbol_push_save(char * str),
+    ltrim(char *str),
+    trim(char *str),
+    init_estructura (char * identificador, char * valor, int num),
+    init_simbolo (char * simbolo, int num, size_t len),
+    pusher(char * str, char cnt[3]),
+    simbol_push_save(char * str),
+    put_string(void),
     declarations(void);
 char linea[256],
      * identificador,
@@ -84,7 +85,6 @@ int main(void){
         printf("\nNo se ha podido abrir el archivo.\n");
         return 1;
     }
-
     while (fgets(linea, 256, input_file)){
         if (linea[0] == 10)
             continue;
@@ -117,7 +117,6 @@ int main(void){
                 init_simbolo(simbolo, num_simbolos, len);
                 continue;
                 }
-
             simbolo2 = strtok(NULL, ",");
             if (!simbolo2){
                 strcpy(resp, "");
@@ -125,7 +124,6 @@ int main(void){
             else strcpy(resp, simbolo2);
             trim(resp);
             printf("[%s][%s]\n", simbolo, resp);
-
 
             char part1[20], part2[20];
             sec_pass = strtok(simbolo, " ");
@@ -168,7 +166,6 @@ int main(void){
                 pusher(values_data_jmp[2].code, "16");
                 simbol_push_save(part2);
                 }
-
             }
             else{
                 if (strcmp(part1, "MOV") == 0){
@@ -180,8 +177,7 @@ int main(void){
                                 pusher(resp, "10");
                                 break;
                             }
-                            else
-                            if (strcmp(upper(strtok(resp, " ")), "OFFSET") == 0 && strcmp(values_data_mov[iter].second,"iw") == 0){
+                            else if (strcmp(upper(strtok(resp, " ")), "OFFSET") == 0 && strcmp(values_data_mov[iter].second,"iw") == 0){
                                 /* printf("Message\n"); */
                                 char * separate = strtok(NULL, " ");
                                 /* separate = strtok(resp, " "); */
@@ -191,8 +187,7 @@ int main(void){
                                 major_iter += 2;
                                 break;
                             }
-                            else
-                            if (strcmp(upper(resp), values_data_mov[iter].second) == 0){
+                            else if (strcmp(upper(resp), values_data_mov[iter].second) == 0){
                                 printf("%s\n", values_data_mov[iter].code);
                                 char reppep[6];
                                 strcpy(reppep, values_data_mov[iter].code);
@@ -200,8 +195,7 @@ int main(void){
                                 pusher(strtok(NULL, " "), "16");
                                 break;
                             }
-                            else
-                                if ((is_namber(resp)== 1) && (strcmp(values_data_mov[iter].first, part2) == 0)/* && (strcmp(values_data_mov[iter].second, "iw") == 0)*/){
+                            else if ((is_namber(resp)== 1) && (strcmp(values_data_mov[iter].first, part2) == 0)/* && (strcmp(values_data_mov[iter].second, "iw") == 0)*/){
                                 char dump[4];
                                 strncpy(dump, &resp[2], 2);
                                 printf("%s %02x", values_data_mov[iter].code, (int)strtol(dump,NULL,16));
@@ -212,41 +206,34 @@ int main(void){
                                 pusher(dump, "16");
                                 break;
                                 }
-                            /* flag = 0; */
                         }
-                    iter += 1;
+                        iter += 1;
                     }
-
                     iter = 0;
                 }
-
                 if (strcmp(part1, "CMP") == 0){
                     /* iter = 0; */
                     if ((strcmp(part2, values_data_cmp[iter].first) == 0)){
                         printf("%s %0x\n", values_data_cmp[iter].code, (int)strtol(resp,NULL,10));
-                        // HERE use sprintf
                         pusher(values_data_cmp[iter].code, "16");
                         pusher(resp, "10");
                     }
                 }
             }
-
-            }
-
+        }
     }
     fclose(input_file);
-    for (int y = 0; y < num_simbolos; y++){
+    // HERE use sprintf
+    for (int y = 0; y < num_simbolos; y++)
         for(int z = 0; z < minor_iter; z++)
-            if(strcmp(simbolos[y].simbolo, save_simbol[z].simbol) == 0){
+            if(strcmp(simbolos[y].simbolo, save_simbol[z].simbol) == 0)
                 aglomerador[save_simbol[z].dir] = simbolos[y].direccion;
-            }
-    }
-
     for (int y = 0;y < major_iter; y++)
         printf("0x%02x ", (aglomerador[y]));
-        printf("\n");
-        printf("%d\n", major_iter);
-        printf("%d\n", num_identificadores);
+    printf("\n");
+    printf("%d\n", major_iter);
+    printf("%d\n", num_identificadores);
+    put_string();
     return 0;
 }
 
@@ -304,6 +291,7 @@ char * upper(char * str){
     /* return str2; */
     return str;
 }
+
 char * lower(char * str){
     int counter = 0;
     while (str[counter]){
@@ -312,6 +300,7 @@ char * lower(char * str){
     }
     return str;
 }
+
 int is_digit(char * str){
     size_t len = strlen(str);
     int i;
@@ -321,6 +310,7 @@ int is_digit(char * str){
     }
     return 1;
 }
+
 int is_namber(char * str){
     size_t len = strlen(str);
     if (len > 5)
@@ -336,6 +326,7 @@ int is_namber(char * str){
     /*else*/ return is_digit(str);
     // Consider use strspn
 }
+
 void pusher(char * str, char cnt[3]){
     if (strcmp(cnt, "16") == 0 )
     aglomerador[major_iter] = (int *)strtol(str,NULL,16);
@@ -344,6 +335,7 @@ void pusher(char * str, char cnt[3]){
     /* strcpy(aglomerador[major_iter], str); */
     major_iter += 1;
 }
+
 void simbol_push_save(char * str){
     strcpy(save_simbol[minor_iter].simbol, str);
     save_simbol[minor_iter].dir = major_iter;
@@ -351,31 +343,26 @@ void simbol_push_save(char * str){
     major_iter += 1;
 }
 
-/* int main(void){ */
-/*     char tmp_str[2], salto = 10; */
-/*     tmp_str[1] = '\0'; */
-/*     tmp_str[0] = salto; */
-/*     strcat(DATA, tmp_str); */
-/*     if((input_file = fopen("program.asm", "r")) == NULL){ */
-/*         printf("\nNo se ha podido abrir el archivo.\n"); */
-/*         return 1; */
-/*     } */
-/*     while (fgets(linea, 256, input_file)){ */
-/*         int len = strlen(linea); */
-/*         /1* printf("%s", upper(linea)); *1/ */
-/*         printf("%s*%d - %d\n", linea, len, linea[len]); */
-/*         if( toupper(linea[0]) == atoi(".")) */
-/*             printf("*******\n"); */
-/*     } */
-/*     printf("\nSuccess\n"); */
-/*     char * low2; */
-/*     low2 = upper(low); */
-/*     printf("Flag\n" ); */
-/*     printf("%s\n", low); */
-/*     int len = strlen(DATA); */
-/*     printf("%s\n%d - %d\n",DATA, len, DATA[len-1]); */
-/*     fclose(input_file); */
+void put_string(void){
+    for(int y = 0; y < num_identificadores; y++){
+        char * lim,
+             sep[256];
+        strcpy(sep,identificadores[y].valor);
+        lim = strchr(sep, '"');
+        int first_quo = (int)(lim-sep);
+        lim = strchr(lim+1, '"');
+        int second_quo = (int)(lim-sep);
+        /* int first_quo = strcspn(sep, delim); */
+        /* int second_quo = strcspn(&sep + first_quo +1, delim); */
+        /* strncpy(sep,sep+first_quo,second_quo); */
+        printf("\n%s\n", sep);
+        printf("%d\n%d\n", first_quo,second_quo);
+        /* strncpy(sep,sep+first_quo+1,) */
+        /* char cad[256]; */
+        /* if (identificador[y].valor == 34){ */
 
-/* } */
+        /* } */
+        /* strcpy(identificador[y].valor */
+    }
 
-
+}
