@@ -4,7 +4,7 @@
 #include <ctype.h>
 
 
-unsigned int * aglomerador[256];
+int * aglomerador[256];
 int main(void),
     is_digit(char * str),
     is_namber(char * str),
@@ -67,7 +67,7 @@ struct data_struct values_data_mov[] = {
     {"MOV", "AH", "ib", "B4", 1},
     {"MOV", "AX", "iw", "B8", 2},
     {"MOV", "DL", "ib", "B2", 1},
-    {"MOV", "DL", "AL", "88 C2", 1},
+    {"MOV", "DL", "AL", "8A D0", 1},
     {"MOV", "DH", "ib", "B6", 1},
     {"MOV", "DX", "iw", "BA", 2},
 };
@@ -76,10 +76,10 @@ struct data_struct values_data_cmp[] = {
     {"CMP", "AX", "iw", "3D", 2},
 };
 struct data_struct values_data_jmp[] = {
-    /* {"JMP", "", "", "EB", 1}, */
-    {"JMP", "", "", "E9", 2},
-    /* {"JE", "", "", "74", 1}, */
-    {"JE", "", "", "0F 84", 2},
+    {"JMP", "", "", "EB", 1},
+    /* {"JMP", "", "", "E9", 2}, */
+    {"JE", "", "", "74", 1},
+    /* {"JE", "", "", "0F 84", 2}, */
     /* {"JG", "", "", "7F", 1}, */
     {"JG", "", "", "0F 8F", 2},
 };
@@ -160,24 +160,25 @@ int main(void){
                 lower(part2);
                 printf("%s %s\n", values_data_jmp[0].code, part2);
                 pusher(values_data_jmp[0].code, "16");
+
                 simbol_push_save(part2);
                 }
                 if (strcmp(part1,"JE") == 0){
                 lower(part2);
-                printf("%s %s\n", values_data_jmp[1].code, part2);
-                /* pusher(values_data_jmp[1].code, "16"); */
+                printf("%s %s >> %02X\n", values_data_jmp[1].code, part2, major_iter);
+                pusher(values_data_jmp[1].code, "16");
                 char reppep[6];
                 strcpy(reppep, values_data_jmp[1].code);
-                pusher(strtok(reppep," "), "16");
-                pusher(strtok(NULL," "), "16");
+                /* pusher(strtok(reppep," "), "16"); */
+                /* pusher(strtok(NULL," "), "16"); */
                 simbol_push_save(part2);
                 }
                 if (strcmp(part1,"JG") == 0){
                 lower(part2);
                 printf("%s %s\n", values_data_jmp[2].code, part2);
-                /* pusher(values_data_jmp[2].code, "16"); */
-                pusher(strtok(values_data_jmp[2].code," "), "16");
-                pusher(strtok(NULL," "), "16");
+                pusher(values_data_jmp[2].code, "16");
+                /* pusher(strtok(values_data_jmp[2].code," "), "16"); */
+                /* pusher(strtok(NULL," "), "16"); */
                 simbol_push_save(part2);
                 }
             }
@@ -249,24 +250,28 @@ int main(void){
     for (int y = 0; y < num_simbolos; y++)
         for(int z = 0; z < minor_iter; z++)
             if(strcmp(simbolos[y].simbolo, save_simbol[z].simbol) == 0){
-                /* aglomerador[save_simbol[z].dir] = simbolos[y].direccion; */
+                /* aglomerador[save_simbol[z].dir] -= simbolos[y].direccion; */
+                aglomerador[save_simbol[z].dir] = simbolos[y].direccion - save_simbol[z].dir -1;
+
                 char  buff[5];
                 sprintf(buff, "%04x", simbolos[y].direccion);
-                printf("[%s] Dir: %s\n", buff, simbolos[y].simbolo);
-                char dump[3];
-                strncpy(dump, &buff[2], 2);
-                dump[2] = NULL;
-                int direct = save_simbol[z].dir;
-                printf("%s ", dump);
-                aglomerador[direct] = (int)strtol(dump,NULL,16);
-                strncpy(dump, buff, 2);
-                dump[2] = NULL;
-                printf("%s\n", dump);
-                aglomerador[direct+1] = (int)strtol(dump,NULL,16);
+                printf("[%s] Dir: %s | [%02X]\n", buff, simbolos[y].simbolo, save_simbol[z].dir-1);
+                /* char dump[3]; */
+                /* strncpy(dump, &buff[2], 2); */
+                /* dump[2] = NULL; */
+                /* int direct = save_simbol[z].dir; */
+                /* printf("%s ", dump); */
+                /* aglomerador[direct] = (int)strtol(dump,NULL,16); */
+                /* strncpy(dump, buff, 2); */
+                /* dump[2] = NULL; */
+                /* printf("%s\n", dump); */
+                /* aglomerador[direct+1] = (int)strtol(dump,NULL,16); */
             }
+    printf("\n");
+    printf("\n");
     put_string();
     for (int y = 0;y < major_iter; y++){
-        printf("0x%02x ", (aglomerador[y]));
+        printf("%02X ", (aglomerador[y]));
         putc(aglomerador[y], fp);
     }
     printf("\n");
@@ -288,10 +293,10 @@ void init_simbolo (char * simbolo, int num, size_t len){
     /* strncpy(simbolos[num].simbolo,simbolos[num].simbolo,(len-2)); */
     simbolos[num].set = 1;
     if (num == 0)
-        simbolos[0].direccion = 0x100;
+        simbolos[0].direccion = 0;
     else
-        simbolos[num].direccion = 0x100 + major_iter + 0;
-    printf("%s:\n", simbolos[num].simbolo);
+        simbolos[num].direccion = 0 + major_iter + 0;
+    printf("%s:  >> %02X\n", simbolos[num].simbolo, major_iter);
     num_simbolos += 1;
 }
 
@@ -377,8 +382,10 @@ void pusher(char * str, char cnt[3]){
 void simbol_push_save(char * str){
     strcpy(save_simbol[minor_iter].simbol, str);
     save_simbol[minor_iter].dir = major_iter;
+    printf("### HERE %02X\n", save_simbol[minor_iter].dir);
     minor_iter += 1;
-    major_iter += 2;
+    /* major_iter += 2; */
+    major_iter += 1;
 }
 
 void put_string(void){
